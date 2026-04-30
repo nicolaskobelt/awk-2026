@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Awakenings Festival 2026 — Timetable Grid</title>
 <style>
   :root {
@@ -166,6 +167,32 @@
     font-size: 0.75rem;
     margin-top: 10px;
   }
+
+  @media (max-width: 640px) {
+    :root { --row-h: 20px; }
+    body { padding: 8px; padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
+    h1 { font-size: 1.15rem; }
+    .subtitle { font-size: 0.75rem; }
+    header { margin-bottom: 8px; }
+    .day-tab { padding: 8px 14px; font-size: 0.8rem; flex: 1 1 28%; text-align: center; }
+    .controls { gap: 6px; margin: 8px 0; }
+    .controls input { min-width: 0; flex: 1 1 100%; font-size: 16px; padding: 9px 12px; }
+    .controls button { font-size: 0.78rem; padding: 8px 12px; }
+    .grid-wrapper {
+      max-height: none;
+      height: calc(100vh - 230px);
+      min-height: 420px;
+      border-radius: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .grid-header { font-size: 0.65rem; letter-spacing: 0.5px; padding: 8px 2px; }
+    .time-label { font-size: 0.62rem; padding: 0 4px; }
+    .set-block { padding: 3px 5px; font-size: 0.65rem; border-radius: 4px; }
+    .set-block .time { font-size: 0.58rem; }
+    .set-block .star { top: 2px; right: 4px; font-size: 0.7rem; }
+    .summary { font-size: 0.72rem; }
+    .legend { font-size: 0.68rem; padding: 0 8px; }
+  }
 </style>
 </head>
 <body>
@@ -305,7 +332,10 @@ function render() {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
   // Layout: column 1 = time labels, columns 2..n+1 = stages
-  grid.style.gridTemplateColumns = `70px repeat(${stages.length}, minmax(140px, 1fr))`;
+  const isMobile = window.matchMedia("(max-width: 640px)").matches;
+  const timeColW = isMobile ? 46 : 70;
+  const stageMinW = isMobile ? 96 : 140;
+  grid.style.gridTemplateColumns = `${timeColW}px repeat(${stages.length}, minmax(${stageMinW}px, 1fr))`;
   grid.style.gridTemplateRows = `40px repeat(${totalRows}, var(--row-h))`;
 
   // Header row
@@ -400,6 +430,12 @@ document.getElementById("clearFavs").addEventListener("click", () => {
   if (favs.size && confirm("Clear all favorites?")) {
     favs.clear(); saveFavs(); render();
   }
+});
+
+let _resizeT;
+window.addEventListener("resize", () => {
+  clearTimeout(_resizeT);
+  _resizeT = setTimeout(render, 150);
 });
 
 render();
