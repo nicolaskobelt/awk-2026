@@ -2,19 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Awakenings Festival 2026 — Set Times</title>
+<title>Awakenings Festival 2026 — Timetable Grid</title>
 <style>
   :root {
     --bg: #0e0710;
     --bg-2: #1a0e1f;
     --card: #1f1326;
-    --card-hover: #2a1934;
     --accent: #ff2d75;
     --accent-2: #ffd84a;
     --text: #f4ecf7;
-    --muted: #b39bbe;
-    --fav: #ffd84a;
+    --muted: #8a7494;
     --border: rgba(255,255,255,0.08);
+    --row-h: 22px; /* per 15 min */
   }
   * { box-sizing: border-box; }
   body {
@@ -23,367 +22,268 @@
     background: radial-gradient(ellipse at top, #2a0a2e 0%, var(--bg) 60%);
     color: var(--text);
     min-height: 100vh;
-    padding: 20px;
+    padding: 16px;
   }
-  header {
-    text-align: center;
-    margin-bottom: 24px;
-  }
+  header { text-align: center; margin-bottom: 16px; }
   h1 {
-    margin: 0 0 6px;
-    font-size: 2rem;
-    letter-spacing: 1px;
+    margin: 0 0 4px;
+    font-size: 1.6rem;
     background: linear-gradient(90deg, var(--accent), var(--accent-2));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
-  .subtitle { color: var(--muted); font-size: 0.95rem; }
+  .subtitle { color: var(--muted); font-size: 0.85rem; }
 
   .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin: 18px 0 24px;
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center; margin: 12px 0;
   }
-  .controls input, .controls button, .controls select {
-    background: var(--card);
-    color: var(--text);
+  .controls input, .controls button {
+    background: var(--card); color: var(--text);
     border: 1px solid var(--border);
-    padding: 9px 14px;
-    border-radius: 999px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.15s;
+    padding: 7px 12px; border-radius: 999px;
+    font-size: 0.85rem; cursor: pointer;
   }
-  .controls input { min-width: 220px; cursor: text; }
+  .controls input { min-width: 200px; cursor: text; }
   .controls input:focus { outline: none; border-color: var(--accent); }
-  .controls button:hover, .controls select:hover { border-color: var(--accent); }
   .controls button.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
+    background: var(--accent); border-color: var(--accent); color: #fff;
   }
 
   .day-tabs {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
+    display: flex; justify-content: center; gap: 6px;
+    margin-bottom: 14px; flex-wrap: wrap;
   }
   .day-tab {
-    padding: 10px 22px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    cursor: pointer;
-    font-weight: 600;
-    letter-spacing: 1px;
-    transition: all 0.2s;
-    color: var(--muted);
+    padding: 8px 18px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 999px;
+    cursor: pointer; font-weight: 600; letter-spacing: 1px;
+    color: var(--muted); font-size: 0.85rem;
   }
   .day-tab.active {
     background: linear-gradient(90deg, var(--accent), #ff6e3d);
-    color: #fff;
-    border-color: transparent;
-    box-shadow: 0 6px 20px rgba(255,45,117,0.3);
+    color: #fff; border-color: transparent;
   }
 
-  .areas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-    gap: 18px;
-    max-width: 1300px;
-    margin: 0 auto;
-  }
-  .area {
-    background: var(--bg-2);
+  .grid-wrapper {
+    overflow: auto;
+    max-height: 80vh;
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
+    border-radius: 12px;
+    background: var(--bg-2);
+    position: relative;
   }
-  .area h2 {
-    margin: 0 0 12px;
-    font-size: 1rem;
-    letter-spacing: 2px;
-    color: var(--accent-2);
-    background: rgba(255,216,74,0.12);
-    display: inline-block;
-    padding: 5px 10px;
-    border-radius: 6px;
+  .grid {
+    display: grid;
+    position: relative;
   }
-  .slot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    background: var(--card);
-    margin-bottom: 8px;
-    transition: background 0.15s;
-  }
-  .slot:hover { background: var(--card-hover); }
-  .slot-info { flex: 1; min-width: 0; }
-  .slot-time {
-    font-size: 0.78rem;
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.5px;
-  }
-  .slot-name {
-    font-weight: 600;
-    font-size: 0.95rem;
-    margin-top: 2px;
-    word-break: break-word;
-  }
-  .fav-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 1.4rem;
-    line-height: 1;
-    padding: 4px;
-    color: var(--muted);
-    transition: transform 0.15s, color 0.15s;
-  }
-  .fav-btn:hover { transform: scale(1.2); }
-  .fav-btn.faved { color: var(--fav); text-shadow: 0 0 12px rgba(255,216,74,0.6); }
-
-  .empty {
+  .grid-header {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--bg-2);
     text-align: center;
+    padding: 10px 6px;
+    font-size: 0.78rem;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent-2);
+  }
+  .grid-header.time-col {
+    left: 0; z-index: 6;
+    background: var(--bg-2);
+  }
+  .time-label {
+    position: sticky; left: 0; z-index: 4;
+    background: var(--bg-2);
     color: var(--muted);
-    padding: 40px;
-    grid-column: 1 / -1;
+    font-size: 0.7rem;
+    text-align: right;
+    padding: 0 8px;
+    border-right: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--row-h);
+    height: var(--row-h);
+  }
+  .time-label.hour {
+    color: var(--text);
+    font-weight: 600;
+    border-top: 1px solid var(--border);
+  }
+  .row-cell {
+    border-bottom: 1px dashed rgba(255,255,255,0.04);
+    border-right: 1px solid rgba(255,255,255,0.03);
+    height: var(--row-h);
+  }
+  .row-cell.hour { border-bottom-color: rgba(255,255,255,0.12); border-bottom-style: solid; }
+
+  .set-block {
+    position: absolute;
+    border-radius: 6px;
+    padding: 5px 8px;
+    color: #fff;
+    font-size: 0.72rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+  }
+  .set-block:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    z-index: 3;
+  }
+  .set-block .name { font-weight: 700; line-height: 1.15; word-break: break-word; }
+  .set-block .time { font-size: 0.65rem; opacity: 0.85; font-variant-numeric: tabular-nums; }
+  .set-block .star {
+    position: absolute; top: 4px; right: 6px;
+    font-size: 0.85rem; line-height: 1;
+  }
+  .set-block.faved {
+    outline: 2px solid var(--accent-2);
+    outline-offset: -2px;
+    box-shadow: 0 0 14px rgba(255,216,74,0.4);
+  }
+  .set-block.dimmed {
+    opacity: 0.18;
   }
 
   .summary {
     text-align: center;
     color: var(--muted);
-    font-size: 0.85rem;
-    margin-bottom: 14px;
+    font-size: 0.8rem;
+    margin: 8px 0;
   }
-  .summary b { color: var(--fav); }
+  .summary b { color: var(--accent-2); }
+
+  .legend {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.75rem;
+    margin-top: 10px;
+  }
 </style>
 </head>
 <body>
 <header>
-  <h1>Awakenings Festival 2026</h1>
-  <div class="subtitle">July 10–12 · Hilvarenbeek · Set Times</div>
+  <h1>Awakenings Festival 2026 — Timetable Grid</h1>
+  <div class="subtitle">July 10–12 · Hilvarenbeek · Y = time (15-min rows) · X = stages</div>
 </header>
 
 <div class="day-tabs" id="dayTabs"></div>
 
 <div class="controls">
   <input id="search" placeholder="Search artist…" />
-  <button id="favOnly">★ Favorites Only</button>
+  <button id="favOnly">★ Highlight Favorites</button>
   <button id="clearFavs">Clear Favorites</button>
 </div>
 
 <div class="summary" id="summary"></div>
 
-<div class="areas-grid" id="grid"></div>
+<div class="grid-wrapper">
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="legend">Click any DJ block to favorite (★). Times after midnight are shown at the bottom of the day.</div>
 
 <script>
 const data = {
   "FRIDAY": {
-    "AREA V": [
-      ["15:00 - 17:30", "SAIDAH"],
-      ["17:30 - 19:00", "PEGASSI"],
-      ["19:00 - 20:30", "PATRICK MASON"],
-      ["20:30 - 22:00", "I HATE MODELS"],
-      ["22:00 - 23:30", "DJ GIGOLA & FUNK TRIBU"],
-      ["23:30 - 01:00", "AMELIE LENS"]
-    ],
-    "AREA A": [
-      ["15:00 - 17:00", "OLIVE ANGUZ"],
-      ["17:00 - 18:30", "FRANCK & UPPER90"],
-      ["18:30 - 20:00", "SERAFINA"],
-      ["20:00 - 22:00", "FUTURE.666 & ÜBERKIKZ"],
-      ["22:00 - 23:30", "CLOUDY"],
-      ["23:30 - 01:00", "ADRIÁN MILLS"]
-    ],
-    "AREA B": [
-      ["15:00 - 16:30", "AAT"],
-      ["16:30 - 18:30", "M-HIGH & SIDNEY CHARLES"],
-      ["18:30 - 20:00", "CLOONEE"],
-      ["20:00 - 21:30", "WADE"],
-      ["21:30 - 23:30", "EAST END DUBS & VINTAGE CULTURE"],
-      ["23:30 - 01:00", "GORDO"]
-    ],
-    "AREA C": [
-      ["15:00 - 17:00", "HELSLOOT"],
-      ["17:00 - 18:30", "KASIA"],
-      ["18:30 - 20:00", "MARCO FARAONE"],
-      ["20:00 - 21:30", "ALAN FITZPATRICK"],
-      ["21:30 - 23:00", "ANFISA LETYAGO"],
-      ["23:00 - 01:00", "JORIS VOORN"]
-    ],
-    "AREA X": [
-      ["16:00 - 18:00", "BULLZEYE"],
-      ["18:00 - 19:30", "ELLI ACULA"],
-      ["19:30 - 21:00", "MARRØN"],
-      ["21:00 - 23:00", "DJ RUSH"],
-      ["23:00 - 01:00", "SPEEDY J"]
-    ],
-    "AREA H": [
-      ["16:30 - 18:00", "BIANKA"],
-      ["18:00 - 19:30", "ZISKO"],
-      ["19:30 - 21:00", "MAC DECLOS"],
-      ["21:00 - 22:30", "PHILIPPA PACHO"],
-      ["22:30 - 00:00", "LOBSTER"]
-    ],
-    "AREA N (CAMPING AFTER)": [
-      ["00:30 - 02:00", "LOCUS ERROR"],
-      ["02:00 - 03:30", "ESTELLA BOERSMA"],
-      ["03:30 - 05:00", "LACCHESI"]
-    ]
+    "AREA V": [["15:00","17:30","SAIDAH"],["17:30","19:00","PEGASSI"],["19:00","20:30","PATRICK MASON"],["20:30","22:00","I HATE MODELS"],["22:00","23:30","DJ GIGOLA & FUNK TRIBU"],["23:30","01:00","AMELIE LENS"]],
+    "AREA A": [["15:00","17:00","OLIVE ANGUZ"],["17:00","18:30","FRANCK & UPPER90"],["18:30","20:00","SERAFINA"],["20:00","22:00","FUTURE.666 & ÜBERKIKZ"],["22:00","23:30","CLOUDY"],["23:30","01:00","ADRIÁN MILLS"]],
+    "AREA B": [["15:00","16:30","AAT"],["16:30","18:30","M-HIGH & SIDNEY CHARLES"],["18:30","20:00","CLOONEE"],["20:00","21:30","WADE"],["21:30","23:30","EAST END DUBS & VINTAGE CULTURE"],["23:30","01:00","GORDO"]],
+    "AREA C": [["15:00","17:00","HELSLOOT"],["17:00","18:30","KASIA"],["18:30","20:00","MARCO FARAONE"],["20:00","21:30","ALAN FITZPATRICK"],["21:30","23:00","ANFISA LETYAGO"],["23:00","01:00","JORIS VOORN"]],
+    "AREA X": [["16:00","18:00","BULLZEYE"],["18:00","19:30","ELLI ACULA"],["19:30","21:00","MARRØN"],["21:00","23:00","DJ RUSH"],["23:00","01:00","SPEEDY J"]],
+    "AREA H": [["16:30","18:00","BIANKA"],["18:00","19:30","ZISKO"],["19:30","21:00","MAC DECLOS"],["21:00","22:30","PHILIPPA PACHO"],["22:30","00:00","LOBSTER"]],
+    "AREA N": [["00:30","02:00","LOCUS ERROR"],["02:00","03:30","ESTELLA BOERSMA"],["03:30","05:00","LACCHESI"]]
   },
   "SATURDAY": {
-    "AREA V": [
-      ["13:00 - 15:00", "BENJA & FRANC FALA"],
-      ["15:00 - 16:30", "ADAM TEN"],
-      ["16:30 - 18:00", "MISS MONIQUE"],
-      ["18:00 - 19:30", "ENRICO SANGIULIANO"],
-      ["19:30 - 21:30", "JORIS VOORN & KEVIN DE VRIES"],
-      ["21:30 - 23:00", "JOSEPH CAPRIATI"],
-      ["23:00 - 01:00", "ADAM BEYER"]
-    ],
-    "AREA A": [
-      ["13:00 - 14:30", "KARA OKAY"],
-      ["14:30 - 16:00", "PAIGE TOMLINSON"],
-      ["16:00 - 17:45", "SOUTHSTAR"],
-      ["17:45 - 19:15", "MISCHLUFT"],
-      ["19:15 - 21:00", "DJ HEARTSTRING"],
-      ["21:00 - 23:00", "MALUGI"],
-      ["23:00 - 01:00", "ANETHA"]
-    ],
-    "AREA B": [
-      ["13:00 - 15:00", "JULIAN FIJMA"],
-      ["15:00 - 17:00", "JAMBACK & MARSOLO"],
-      ["17:00 - 19:00", "ENZO SIRAGUSA"],
-      ["19:00 - 21:00", "MAX DEAN & PROSPA"],
-      ["21:00 - 23:00", "JOSH BAKER"],
-      ["23:00 - 01:00", "KETTAMA"]
-    ],
-    "AREA C": [
-      ["13:00 - 15:30", "NIIOMI"],
-      ["15:30 - 18:30", "NOVA:II"],
-      ["18:30 - 21:00", "MAHMUT ORHAN & SHIMZA"],
-      ["21:00 - 23:00", "COLYN"],
-      ["23:00 - 01:00", "STEPHAN BODZIN (LIVE)"]
-    ],
-    "AREA X": [
-      ["13:00 - 14:45", "SHE/HER"],
-      ["14:45 - 16:15", "GRACE DAHL"],
-      ["16:15 - 18:00", "ADIEL"],
-      ["18:00 - 19:45", "RØDHÅD"],
-      ["19:45 - 21:30", "LEN FAKI"],
-      ["21:30 - 23:15", "FJAAK"],
-      ["23:15 - 01:00", "DAX J"]
-    ],
-    "AREA Y": [
-      ["13:00 - 15:00", "FIENE"],
-      ["15:00 - 16:30", "DIØN"],
-      ["16:30 - 18:15", "INDIRA PAGANOTTO"],
-      ["18:15 - 19:45", "NICO MORENO"],
-      ["19:45 - 21:30", "FATIMA HAJJI"],
-      ["21:30 - 23:15", "AZYR"],
-      ["23:15 - 01:00", "DYEN"]
-    ],
-    "AREA H": [
-      ["15:00 - 17:00", "ALI3N"],
-      ["17:00 - 18:30", "ISABEL SOTO"],
-      ["18:30 - 19:30", "VLADIMIR DUBYSHKIN (LIVE)"],
-      ["19:30 - 21:00", "BESTE HIRA"],
-      ["21:00 - 22:30", "RENE WISE"],
-      ["22:30 - 00:00", "AKUA & HENNING BAER"]
-    ],
-    "AREA N (CAMPING AFTER)": [
-      ["00:30 - 02:00", "VE/RA"],
-      ["02:00 - 03:30", "AMBER BROOS & JULIET FOX"],
-      ["03:30 - 05:00", "SECRET CINEMA"]
-    ]
+    "AREA V": [["13:00","15:00","BENJA & FRANC FALA"],["15:00","16:30","ADAM TEN"],["16:30","18:00","MISS MONIQUE"],["18:00","19:30","ENRICO SANGIULIANO"],["19:30","21:30","JORIS VOORN & KEVIN DE VRIES"],["21:30","23:00","JOSEPH CAPRIATI"],["23:00","01:00","ADAM BEYER"]],
+    "AREA A": [["13:00","14:30","KARA OKAY"],["14:30","16:00","PAIGE TOMLINSON"],["16:00","17:45","SOUTHSTAR"],["17:45","19:15","MISCHLUFT"],["19:15","21:00","DJ HEARTSTRING"],["21:00","23:00","MALUGI"],["23:00","01:00","ANETHA"]],
+    "AREA B": [["13:00","15:00","JULIAN FIJMA"],["15:00","17:00","JAMBACK & MARSOLO"],["17:00","19:00","ENZO SIRAGUSA"],["19:00","21:00","MAX DEAN & PROSPA"],["21:00","23:00","JOSH BAKER"],["23:00","01:00","KETTAMA"]],
+    "AREA C": [["13:00","15:30","NIIOMI"],["15:30","18:30","NOVA:II"],["18:30","21:00","MAHMUT ORHAN & SHIMZA"],["21:00","23:00","COLYN"],["23:00","01:00","STEPHAN BODZIN (LIVE)"]],
+    "AREA X": [["13:00","14:45","SHE/HER"],["14:45","16:15","GRACE DAHL"],["16:15","18:00","ADIEL"],["18:00","19:45","RØDHÅD"],["19:45","21:30","LEN FAKI"],["21:30","23:15","FJAAK"],["23:15","01:00","DAX J"]],
+    "AREA Y": [["13:00","15:00","FIENE"],["15:00","16:30","DIØN"],["16:30","18:15","INDIRA PAGANOTTO"],["18:15","19:45","NICO MORENO"],["19:45","21:30","FATIMA HAJJI"],["21:30","23:15","AZYR"],["23:15","01:00","DYEN"]],
+    "AREA H": [["15:00","17:00","ALI3N"],["17:00","18:30","ISABEL SOTO"],["18:30","19:30","VLADIMIR DUBYSHKIN (LIVE)"],["19:30","21:00","BESTE HIRA"],["21:00","22:30","RENE WISE"],["22:30","00:00","AKUA & HENNING BAER"]],
+    "AREA N": [["00:30","02:00","VE/RA"],["02:00","03:30","AMBER BROOS & JULIET FOX"],["03:30","05:00","SECRET CINEMA"]]
   },
   "SUNDAY": {
-    "AREA V": [
-      ["13:00 - 15:00", "JULYA KARMA"],
-      ["15:00 - 16:30", "INNELLEA"],
-      ["16:30 - 18:00", "BORIS BREJCHA"],
-      ["18:00 - 19:30", "ADRIATIQUE"],
-      ["19:30 - 21:00", "RICHIE HAWTIN"],
-      ["21:00 - 23:00", "CHARLOTTE DE WITTE"]
-    ],
-    "AREA A": [
-      ["13:00 - 14:30", "LISA KORVER"],
-      ["14:30 - 16:00", "LUCKY DONE GONE"],
-      ["16:00 - 18:00", "LAMMER"],
-      ["18:00 - 19:30", "BAD BOOMBOX"],
-      ["19:30 - 21:15", "ØTTA"],
-      ["21:15 - 23:00", "MCR-T & PARTIBOI69"]
-    ],
-    "AREA B": [
-      ["13:00 - 15:00", "EASTTOWN"],
-      ["15:00 - 16:30", "JOËLLA JACKSON"],
-      ["16:30 - 18:00", "TOMAN"],
-      ["18:00 - 19:30", "MAU P"],
-      ["19:30 - 21:00", "FRANKY RIZARDO"],
-      ["21:00 - 23:00", "MARCO CAROLA"]
-    ],
-    "AREA C": [
-      ["13:00 - 14:30", "KAUFMANN"],
-      ["14:30 - 16:00", "MHA IRI"],
-      ["16:00 - 17:45", "CHRIS AVANTGARDE"],
-      ["17:45 - 19:15", "BART SKILS"],
-      ["19:15 - 21:00", "PAN-POT"],
-      ["21:00 - 23:00", "ELI BROWN & HI-LO"]
-    ],
-    "AREA X": [
-      ["13:00 - 14:45", "JULIA MARIA"],
-      ["14:45 - 16:30", "IGNEZ"],
-      ["16:30 - 18:00", "NINA KRAVIZ"],
-      ["18:00 - 19:30", "FREDDY K"],
-      ["19:30 - 21:00", "BEN KLOCK"],
-      ["21:00 - 23:00", "CHLÄR & YANAMASTE"]
-    ],
-    "AREA Y": [
-      ["13:00 - 14:30", "SAMOH (LIVE)"],
-      ["14:30 - 16:00", "NIKOLINA"],
-      ["16:00 - 17:30", "BIIA"],
-      ["17:30 - 19:00", "NOVAH"],
-      ["19:00 - 21:00", "999999999"],
-      ["21:00 - 23:00", "CYNTHIA SPIERING & REINIER ZONNEVELD"]
-    ],
-    "AREA H": [
-      ["15:00 - 16:30", "VALODY"],
-      ["16:30 - 18:00", "ROSATI"],
-      ["18:00 - 20:00", "SHDW"],
-      ["20:00 - 22:00", "STRANGER & TALISMANN"]
-    ],
-    "AREA N (CAMPING AFTER)": [
-      ["23:30 - 01:00", "ARES CARTER"],
-      ["01:00 - 03:00", "JOYHAUSER"]
-    ]
+    "AREA V": [["13:00","15:00","JULYA KARMA"],["15:00","16:30","INNELLEA"],["16:30","18:00","BORIS BREJCHA"],["18:00","19:30","ADRIATIQUE"],["19:30","21:00","RICHIE HAWTIN"],["21:00","23:00","CHARLOTTE DE WITTE"]],
+    "AREA A": [["13:00","14:30","LISA KORVER"],["14:30","16:00","LUCKY DONE GONE"],["16:00","18:00","LAMMER"],["18:00","19:30","BAD BOOMBOX"],["19:30","21:15","ØTTA"],["21:15","23:00","MCR-T & PARTIBOI69"]],
+    "AREA B": [["13:00","15:00","EASTTOWN"],["15:00","16:30","JOËLLA JACKSON"],["16:30","18:00","TOMAN"],["18:00","19:30","MAU P"],["19:30","21:00","FRANKY RIZARDO"],["21:00","23:00","MARCO CAROLA"]],
+    "AREA C": [["13:00","14:30","KAUFMANN"],["14:30","16:00","MHA IRI"],["16:00","17:45","CHRIS AVANTGARDE"],["17:45","19:15","BART SKILS"],["19:15","21:00","PAN-POT"],["21:00","23:00","ELI BROWN & HI-LO"]],
+    "AREA X": [["13:00","14:45","JULIA MARIA"],["14:45","16:30","IGNEZ"],["16:30","18:00","NINA KRAVIZ"],["18:00","19:30","FREDDY K"],["19:30","21:00","BEN KLOCK"],["21:00","23:00","CHLÄR & YANAMASTE"]],
+    "AREA Y": [["13:00","14:30","SAMOH (LIVE)"],["14:30","16:00","NIKOLINA"],["16:00","17:30","BIIA"],["17:30","19:00","NOVAH"],["19:00","21:00","999999999"],["21:00","23:00","CYNTHIA SPIERING & REINIER ZONNEVELD"]],
+    "AREA H": [["15:00","16:30","VALODY"],["16:30","18:00","ROSATI"],["18:00","20:00","SHDW"],["20:00","22:00","STRANGER & TALISMANN"]],
+    "AREA N": [["23:30","01:00","ARES CARTER"],["01:00","03:00","JOYHAUSER"]]
   }
 };
 
-const STORAGE_KEY = "awakenings_2026_favs";
+// Stage colors
+const STAGE_COLORS = {
+  "AREA V": "#e91e63",
+  "AREA A": "#ff9800",
+  "AREA B": "#4caf50",
+  "AREA C": "#2196f3",
+  "AREA X": "#9c27b0",
+  "AREA Y": "#00bcd4",
+  "AREA H": "#f44336",
+  "AREA N": "#607d8b"
+};
+
+const STORAGE_KEY = "awakenings_2026_favs_grid";
 let favs = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
 let activeDay = "FRIDAY";
-let favOnly = false;
+let highlightFavs = false;
 let searchQuery = "";
 
-function saveFavs() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([...favs]));
+const ROW_H = 22; // px per 15 min - keep in sync with --row-h
+
+function saveFavs() { localStorage.setItem(STORAGE_KEY, JSON.stringify([...favs])); }
+function toggleFav(name) {
+  if (favs.has(name)) favs.delete(name); else favs.add(name);
+  saveFavs(); render();
 }
 
-function toggleFav(name) {
-  if (favs.has(name)) favs.delete(name);
-  else favs.add(name);
-  saveFavs();
-  render();
+// Convert "HH:MM" to minutes from start-of-day baseline.
+// If a set crosses midnight, end < start; we add 24h to end.
+function parseTime(t) {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+// Compute day's range based on all sets, normalized to a baseline of earliest start.
+function computeDayRange(day) {
+  const stages = data[day];
+  let starts = [], ends = [];
+  Object.values(stages).forEach(slots => {
+    slots.forEach(([s, e]) => {
+      let sm = parseTime(s);
+      let em = parseTime(e);
+      // Heuristic: if start is very early (e.g. 00:30, 01:00, 02:00...) treat as next-day.
+      // If start < 12:00 it likely means after-midnight on next day.
+      if (sm < 12 * 60) sm += 24 * 60;
+      if (em <= sm) em += 24 * 60;
+      starts.push(sm);
+      ends.push(em);
+    });
+  });
+  const min = Math.min(...starts);
+  const max = Math.max(...ends);
+  // Round min down to nearest 15
+  const start = Math.floor(min / 15) * 15;
+  const end = Math.ceil(max / 15) * 15;
+  return { start, end };
+}
+
+function fmtTime(min) {
+  const h = Math.floor(min / 60) % 24;
+  const m = min % 60;
+  return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
 }
 
 function render() {
@@ -398,62 +298,103 @@ function render() {
     tabsEl.appendChild(btn);
   });
 
-  // Areas
+  const stages = Object.keys(data[activeDay]);
+  const { start, end } = computeDayRange(activeDay);
+  const totalRows = (end - start) / 15;
+
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
-  const areas = data[activeDay];
-  let total = 0, shown = 0;
-  const q = searchQuery.toLowerCase().trim();
+  // Layout: column 1 = time labels, columns 2..n+1 = stages
+  grid.style.gridTemplateColumns = `70px repeat(${stages.length}, minmax(140px, 1fr))`;
+  grid.style.gridTemplateRows = `40px repeat(${totalRows}, var(--row-h))`;
 
-  Object.entries(areas).forEach(([area, slots]) => {
-    const filtered = slots.filter(([t, n]) => {
-      total++;
-      if (favOnly && !favs.has(n)) return false;
-      if (q && !n.toLowerCase().includes(q)) return false;
-      shown++;
-      return true;
-    });
-    if (filtered.length === 0) return;
-    const card = document.createElement("div");
-    card.className = "area";
-    card.innerHTML = `<h2>${area}</h2>`;
-    filtered.forEach(([time, name]) => {
-      const slot = document.createElement("div");
-      slot.className = "slot";
-      const isFav = favs.has(name);
-      slot.innerHTML = `
-        <div class="slot-info">
-          <div class="slot-time">${time}</div>
-          <div class="slot-name">${name}</div>
-        </div>
-        <button class="fav-btn ${isFav ? "faved" : ""}" title="${isFav ? "Remove from favorites" : "Add to favorites"}">${isFav ? "★" : "☆"}</button>
-      `;
-      slot.querySelector(".fav-btn").onclick = () => toggleFav(name);
-      card.appendChild(slot);
-    });
-    grid.appendChild(card);
+  // Header row
+  const corner = document.createElement("div");
+  corner.className = "grid-header time-col";
+  corner.style.gridRow = "1";
+  corner.style.gridColumn = "1";
+  corner.style.position = "sticky";
+  corner.style.left = "0";
+  corner.style.zIndex = "7";
+  corner.textContent = "TIME";
+  grid.appendChild(corner);
+
+  stages.forEach((stage, i) => {
+    const h = document.createElement("div");
+    h.className = "grid-header";
+    h.style.gridRow = "1";
+    h.style.gridColumn = `${i + 2}`;
+    h.style.color = STAGE_COLORS[stage] || "#fff";
+    h.textContent = stage;
+    grid.appendChild(h);
   });
 
-  if (shown === 0) {
-    grid.innerHTML = `<div class="empty">No sets match your filters on ${activeDay}.</div>`;
+  // Time labels + background row cells
+  for (let r = 0; r < totalRows; r++) {
+    const minute = start + r * 15;
+    const isHour = minute % 60 === 0;
+    const label = document.createElement("div");
+    label.className = "time-label" + (isHour ? " hour" : "");
+    label.style.gridRow = `${r + 2}`;
+    label.style.gridColumn = "1";
+    label.textContent = isHour ? fmtTime(minute) : "";
+    grid.appendChild(label);
+
+    stages.forEach((stage, i) => {
+      const c = document.createElement("div");
+      c.className = "row-cell" + (isHour ? " hour" : "");
+      c.style.gridRow = `${r + 2}`;
+      c.style.gridColumn = `${i + 2}`;
+      grid.appendChild(c);
+    });
   }
 
-  // Summary
-  document.getElementById("summary").innerHTML =
-    `Showing <b>${shown}</b> of ${total} sets · <b>${favs.size}</b> favorites total`;
+  // Set blocks
+  const q = searchQuery.toLowerCase().trim();
+  let totalSets = 0, favCount = 0;
 
-  // Buttons
-  const favBtn = document.getElementById("favOnly");
-  favBtn.classList.toggle("active", favOnly);
-  favBtn.textContent = favOnly ? "★ Favorites Only ✓" : "★ Favorites Only";
+  stages.forEach((stage, i) => {
+    data[activeDay][stage].forEach(([s, e, name]) => {
+      totalSets++;
+      let sm = parseTime(s);
+      let em = parseTime(e);
+      if (sm < 12 * 60) sm += 24 * 60;
+      if (em <= sm) em += 24 * 60;
+
+      const startRow = (sm - start) / 15 + 2; // +2 for header row
+      const span = (em - sm) / 15;
+
+      const block = document.createElement("div");
+      const isFav = favs.has(name);
+      if (isFav) favCount++;
+      const matchesSearch = !q || name.toLowerCase().includes(q);
+      block.className = "set-block" + (isFav ? " faved" : "") + (!matchesSearch || (highlightFavs && !isFav) ? " dimmed" : "");
+      block.style.gridColumn = `${i + 2}`;
+      block.style.gridRow = `${startRow} / span ${span}`;
+      const color = STAGE_COLORS[stage] || "#555";
+      block.style.background = `linear-gradient(135deg, ${color}dd, ${color}99)`;
+      block.style.position = "relative";
+      block.innerHTML = `
+        <div class="time">${s} – ${e}</div>
+        <div class="name">${name}</div>
+        <div class="star">${isFav ? "★" : ""}</div>
+      `;
+      block.onclick = () => toggleFav(name);
+      grid.appendChild(block);
+    });
+  });
+
+  document.getElementById("summary").innerHTML =
+    `${activeDay} · <b>${stages.length}</b> stages · <b>${totalSets}</b> sets · <b>${favs.size}</b> favorites total`;
+
+  document.getElementById("favOnly").classList.toggle("active", highlightFavs);
 }
 
 document.getElementById("search").addEventListener("input", e => {
-  searchQuery = e.target.value;
-  render();
+  searchQuery = e.target.value; render();
 });
 document.getElementById("favOnly").addEventListener("click", () => {
-  favOnly = !favOnly; render();
+  highlightFavs = !highlightFavs; render();
 });
 document.getElementById("clearFavs").addEventListener("click", () => {
   if (favs.size && confirm("Clear all favorites?")) {
