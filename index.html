@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Awakenings Festival 2026 — Set Times</title>
+<style>
+  :root {
+    --bg: #0e0710;
+    --bg-2: #1a0e1f;
+    --card: #1f1326;
+    --card-hover: #2a1934;
+    --accent: #ff2d75;
+    --accent-2: #ffd84a;
+    --text: #f4ecf7;
+    --muted: #b39bbe;
+    --fav: #ffd84a;
+    --border: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(ellipse at top, #2a0a2e 0%, var(--bg) 60%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  h1 {
+    margin: 0 0 6px;
+    font-size: 2rem;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .subtitle { color: var(--muted); font-size: 0.95rem; }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 18px 0 24px;
+  }
+  .controls input, .controls button, .controls select {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .controls input { min-width: 220px; cursor: text; }
+  .controls input:focus { outline: none; border-color: var(--accent); }
+  .controls button:hover, .controls select:hover { border-color: var(--accent); }
+  .controls button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .day-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .day-tab {
+    padding: 10px 22px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    color: var(--muted);
+  }
+  .day-tab.active {
+    background: linear-gradient(90deg, var(--accent), #ff6e3d);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 6px 20px rgba(255,45,117,0.3);
+  }
+
+  .areas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 18px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  .area {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .area h2 {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: var(--accent-2);
+    background: rgba(255,216,74,0.12);
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 6px;
+  }
+  .slot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--card);
+    margin-bottom: 8px;
+    transition: background 0.15s;
+  }
+  .slot:hover { background: var(--card-hover); }
+  .slot-info { flex: 1; min-width: 0; }
+  .slot-time {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+  }
+  .slot-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-top: 2px;
+    word-break: break-word;
+  }
+  .fav-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 4px;
+    color: var(--muted);
+    transition: transform 0.15s, color 0.15s;
+  }
+  .fav-btn:hover { transform: scale(1.2); }
+  .fav-btn.faved { color: var(--fav); text-shadow: 0 0 12px rgba(255,216,74,0.6); }
+
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px;
+    grid-column: 1 / -1;
+  }
+
+  .summary {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+  }
+  .summary b { color: var(--fav); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Awakenings Festival 2026</h1>
+  <div class="subtitle">July 10–12 · Hilvarenbeek · Set Times</div>
+</header>
+
+<div class="day-tabs" id="dayTabs"></div>
+
+<div class="controls">
+  <input id="search" placeholder="Search artist…" />
+  <button id="favOnly">★ Favorites Only</button>
+  <button id="clearFavs">Clear Favorites</button>
+</div>
+
+<div class="summary" id="summary"></div>
+
+<div class="areas-grid" id="grid"></div>
+
+<script>
+const data = {
+  "FRIDAY": {
+    "AREA V": [
+      ["15:00 - 17:30", "SAIDAH"],
+      ["17:30 - 19:00", "PEGASSI"],
+      ["19:00 - 20:30", "PATRICK MASON"],
+      ["20:30 - 22:00", "I HATE MODELS"],
+      ["22:00 - 23:30", "DJ GIGOLA & FUNK TRIBU"],
+      ["23:30 - 01:00", "AMELIE LENS"]
+    ],
+    "AREA A": [
+      ["15:00 - 17:00", "OLIVE ANGUZ"],
+      ["17:00 - 18:30", "FRANCK & UPPER90"],
+      ["18:30 - 20:00", "SERAFINA"],
+      ["20:00 - 22:00", "FUTURE.666 & ÜBERKIKZ"],
+      ["22:00 - 23:30", "CLOUDY"],
+      ["23:30 - 01:00", "ADRIÁN MILLS"]
+    ],
+    "AREA B": [
+      ["15:00 - 16:30", "AAT"],
+      ["16:30 - 18:30", "M-HIGH & SIDNEY CHARLES"],
+      ["18:30 - 20:00", "CLOONEE"],
+      ["20:00 - 21:30", "WADE"],
+      ["21:30 - 23:30", "EAST END DUBS & VINTAGE CULTURE"],
+      ["23:30 - 01:00", "GORDO"]
+    ],
+    "AREA C": [
+      ["15:00 - 17:00", "HELSLOOT"],
+      ["17:00 - 18:30", "KASIA"],
+      ["18:30 - 20:00", "MARCO FARAONE"],
+      ["20:00 - 21:30", "ALAN FITZPATRICK"],
+      ["21:30 - 23:00", "ANFISA LETYAGO"],
+      ["23:00 - 01:00", "JORIS VOORN"]
+    ],
+    "AREA X": [
+      ["16:00 - 18:00", "BULLZEYE"],
+      ["18:00 - 19:30", "ELLI ACULA"],
+      ["19:30 - 21:00", "MARRØN"],
+      ["21:00 - 23:00", "DJ RUSH"],
+      ["23:00 - 01:00", "SPEEDY J"]
+    ],
+    "AREA H": [
+      ["16:30 - 18:00", "BIANKA"],
+      ["18:00 - 19:30", "ZISKO"],
+      ["19:30 - 21:00", "MAC DECLOS"],
+      ["21:00 - 22:30", "PHILIPPA PACHO"],
+      ["22:30 - 00:00", "LOBSTER"]
+    ],
+    "AREA N (CAMPING AFTER)": [
+      ["00:30 - 02:00", "LOCUS ERROR"],
+      ["02:00 - 03:30", "ESTELLA BOERSMA"],
+      ["03:30 - 05:00", "LACCHESI"]
+    ]
+  },
+  "SATURDAY": {
+    "AREA V": [
+      ["13:00 - 15:00", "BENJA & FRANC FALA"],
+      ["15:00 - 16:30", "ADAM TEN"],
+      ["16:30 - 18:00", "MISS MONIQUE"],
+      ["18:00 - 19:30", "ENRICO SANGIULIANO"],
+      ["19:30 - 21:30", "JORIS VOORN & KEVIN DE VRIES"],
+      ["21:30 - 23:00", "JOSEPH CAPRIATI"],
+      ["23:00 - 01:00", "ADAM BEYER"]
+    ],
+    "AREA A": [
+      ["13:00 - 14:30", "KARA OKAY"],
+      ["14:30 - 16:00", "PAIGE TOMLINSON"],
+      ["16:00 - 17:45", "SOUTHSTAR"],
+      ["17:45 - 19:15", "MISCHLUFT"],
+      ["19:15 - 21:00", "DJ HEARTSTRING"],
+      ["21:00 - 23:00", "MALUGI"],
+      ["23:00 - 01:00", "ANETHA"]
+    ],
+    "AREA B": [
+      ["13:00 - 15:00", "JULIAN FIJMA"],
+      ["15:00 - 17:00", "JAMBACK & MARSOLO"],
+      ["17:00 - 19:00", "ENZO SIRAGUSA"],
+      ["19:00 - 21:00", "MAX DEAN & PROSPA"],
+      ["21:00 - 23:00", "JOSH BAKER"],
+      ["23:00 - 01:00", "KETTAMA"]
+    ],
+    "AREA C": [
+      ["13:00 - 15:30", "NIIOMI"],
+      ["15:30 - 18:30", "NOVA:II"],
+      ["18:30 - 21:00", "MAHMUT ORHAN & SHIMZA"],
+      ["21:00 - 23:00", "COLYN"],
+      ["23:00 - 01:00", "STEPHAN BODZIN (LIVE)"]
+    ],
+    "AREA X": [
+      ["13:00 - 14:45", "SHE/HER"],
+      ["14:45 - 16:15", "GRACE DAHL"],
+      ["16:15 - 18:00", "ADIEL"],
+      ["18:00 - 19:45", "RØDHÅD"],
+      ["19:45 - 21:30", "LEN FAKI"],
+      ["21:30 - 23:15", "FJAAK"],
+      ["23:15 - 01:00", "DAX J"]
+    ],
+    "AREA Y": [
+      ["13:00 - 15:00", "FIENE"],
+      ["15:00 - 16:30", "DIØN"],
+      ["16:30 - 18:15", "INDIRA PAGANOTTO"],
+      ["18:15 - 19:45", "NICO MORENO"],
+      ["19:45 - 21:30", "FATIMA HAJJI"],
+      ["21:30 - 23:15", "AZYR"],
+      ["23:15 - 01:00", "DYEN"]
+    ],
+    "AREA H": [
+      ["15:00 - 17:00", "ALI3N"],
+      ["17:00 - 18:30", "ISABEL SOTO"],
+      ["18:30 - 19:30", "VLADIMIR DUBYSHKIN (LIVE)"],
+      ["19:30 - 21:00", "BESTE HIRA"],
+      ["21:00 - 22:30", "RENE WISE"],
+      ["22:30 - 00:00", "AKUA & HENNING BAER"]
+    ],
+    "AREA N (CAMPING AFTER)": [
+      ["00:30 - 02:00", "VE/RA"],
+      ["02:00 - 03:30", "AMBER BROOS & JULIET FOX"],
+      ["03:30 - 05:00", "SECRET CINEMA"]
+    ]
+  },
+  "SUNDAY": {
+    "AREA V": [
+      ["13:00 - 15:00", "JULYA KARMA"],
+      ["15:00 - 16:30", "INNELLEA"],
+      ["16:30 - 18:00", "BORIS BREJCHA"],
+      ["18:00 - 19:30", "ADRIATIQUE"],
+      ["19:30 - 21:00", "RICHIE HAWTIN"],
+      ["21:00 - 23:00", "CHARLOTTE DE WITTE"]
+    ],
+    "AREA A": [
+      ["13:00 - 14:30", "LISA KORVER"],
+      ["14:30 - 16:00", "LUCKY DONE GONE"],
+      ["16:00 - 18:00", "LAMMER"],
+      ["18:00 - 19:30", "BAD BOOMBOX"],
+      ["19:30 - 21:15", "ØTTA"],
+      ["21:15 - 23:00", "MCR-T & PARTIBOI69"]
+    ],
+    "AREA B": [
+      ["13:00 - 15:00", "EASTTOWN"],
+      ["15:00 - 16:30", "JOËLLA JACKSON"],
+      ["16:30 - 18:00", "TOMAN"],
+      ["18:00 - 19:30", "MAU P"],
+      ["19:30 - 21:00", "FRANKY RIZARDO"],
+      ["21:00 - 23:00", "MARCO CAROLA"]
+    ],
+    "AREA C": [
+      ["13:00 - 14:30", "KAUFMANN"],
+      ["14:30 - 16:00", "MHA IRI"],
+      ["16:00 - 17:45", "CHRIS AVANTGARDE"],
+      ["17:45 - 19:15", "BART SKILS"],
+      ["19:15 - 21:00", "PAN-POT"],
+      ["21:00 - 23:00", "ELI BROWN & HI-LO"]
+    ],
+    "AREA X": [
+      ["13:00 - 14:45", "JULIA MARIA"],
+      ["14:45 - 16:30", "IGNEZ"],
+      ["16:30 - 18:00", "NINA KRAVIZ"],
+      ["18:00 - 19:30", "FREDDY K"],
+      ["19:30 - 21:00", "BEN KLOCK"],
+      ["21:00 - 23:00", "CHLÄR & YANAMASTE"]
+    ],
+    "AREA Y": [
+      ["13:00 - 14:30", "SAMOH (LIVE)"],
+      ["14:30 - 16:00", "NIKOLINA"],
+      ["16:00 - 17:30", "BIIA"],
+      ["17:30 - 19:00", "NOVAH"],
+      ["19:00 - 21:00", "999999999"],
+      ["21:00 - 23:00", "CYNTHIA SPIERING & REINIER ZONNEVELD"]
+    ],
+    "AREA H": [
+      ["15:00 - 16:30", "VALODY"],
+      ["16:30 - 18:00", "ROSATI"],
+      ["18:00 - 20:00", "SHDW"],
+      ["20:00 - 22:00", "STRANGER & TALISMANN"]
+    ],
+    "AREA N (CAMPING AFTER)": [
+      ["23:30 - 01:00", "ARES CARTER"],
+      ["01:00 - 03:00", "JOYHAUSER"]
+    ]
+  }
+};
+
+const STORAGE_KEY = "awakenings_2026_favs";
+let favs = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+let activeDay = "FRIDAY";
+let favOnly = false;
+let searchQuery = "";
+
+function saveFavs() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...favs]));
+}
+
+function toggleFav(name) {
+  if (favs.has(name)) favs.delete(name);
+  else favs.add(name);
+  saveFavs();
+  render();
+}
+
+function render() {
+  // Day tabs
+  const tabsEl = document.getElementById("dayTabs");
+  tabsEl.innerHTML = "";
+  Object.keys(data).forEach(day => {
+    const btn = document.createElement("button");
+    btn.className = "day-tab" + (day === activeDay ? " active" : "");
+    btn.textContent = day;
+    btn.onclick = () => { activeDay = day; render(); };
+    tabsEl.appendChild(btn);
+  });
+
+  // Areas
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  const areas = data[activeDay];
+  let total = 0, shown = 0;
+  const q = searchQuery.toLowerCase().trim();
+
+  Object.entries(areas).forEach(([area, slots]) => {
+    const filtered = slots.filter(([t, n]) => {
+      total++;
+      if (favOnly && !favs.has(n)) return false;
+      if (q && !n.toLowerCase().includes(q)) return false;
+      shown++;
+      return true;
+    });
+    if (filtered.length === 0) return;
+    const card = document.createElement("div");
+    card.className = "area";
+    card.innerHTML = `<h2>${area}</h2>`;
+    filtered.forEach(([time, name]) => {
+      const slot = document.createElement("div");
+      slot.className = "slot";
+      const isFav = favs.has(name);
+      slot.innerHTML = `
+        <div class="slot-info">
+          <div class="slot-time">${time}</div>
+          <div class="slot-name">${name}</div>
+        </div>
+        <button class="fav-btn ${isFav ? "faved" : ""}" title="${isFav ? "Remove from favorites" : "Add to favorites"}">${isFav ? "★" : "☆"}</button>
+      `;
+      slot.querySelector(".fav-btn").onclick = () => toggleFav(name);
+      card.appendChild(slot);
+    });
+    grid.appendChild(card);
+  });
+
+  if (shown === 0) {
+    grid.innerHTML = `<div class="empty">No sets match your filters on ${activeDay}.</div>`;
+  }
+
+  // Summary
+  document.getElementById("summary").innerHTML =
+    `Showing <b>${shown}</b> of ${total} sets · <b>${favs.size}</b> favorites total`;
+
+  // Buttons
+  const favBtn = document.getElementById("favOnly");
+  favBtn.classList.toggle("active", favOnly);
+  favBtn.textContent = favOnly ? "★ Favorites Only ✓" : "★ Favorites Only";
+}
+
+document.getElementById("search").addEventListener("input", e => {
+  searchQuery = e.target.value;
+  render();
+});
+document.getElementById("favOnly").addEventListener("click", () => {
+  favOnly = !favOnly; render();
+});
+document.getElementById("clearFavs").addEventListener("click", () => {
+  if (favs.size && confirm("Clear all favorites?")) {
+    favs.clear(); saveFavs(); render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
