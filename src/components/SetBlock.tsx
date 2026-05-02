@@ -53,7 +53,7 @@ export function SetBlock({ set, rangeStart, columnIndex, dimmed }: SetBlockProps
             "transition-[transform,box-shadow,opacity] duration-150",
             "border border-white/15 hover:scale-[1.02] hover:shadow-2xl hover:shadow-black/40 hover:z-20",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            isFav && "ring-2 ring-accent shadow-[0_0_18px_hsla(47,100%,64%,0.45)]",
+            isFav && "ring-2 ring-inset ring-accent shadow-[0_0_18px_hsla(47,100%,64%,0.45)]",
             dimmed && "opacity-20",
           )}
           style={{
