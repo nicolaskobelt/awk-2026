@@ -1,7 +1,8 @@
 import * as React from "react";
-import { Star, Users } from "lucide-react";
+import { Star, Users, X } from "lucide-react";
 import {
   Popover,
+  PopoverClose,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
@@ -43,7 +44,7 @@ export function SetBlock({ set, rangeStart, columnIndex, dimmed }: SetBlockProps
   const overflow = others.length - visibleChips.length;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -100,7 +101,13 @@ export function SetBlock({ set, rangeStart, columnIndex, dimmed }: SetBlockProps
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-72 p-4" onOpenAutoFocus={(e) => e.preventDefault()}>
-        <div className="flex items-start justify-between gap-2 mb-1">
+        <PopoverClose
+          aria-label="Close"
+          className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <X className="h-4 w-4" />
+        </PopoverClose>
+        <div className="flex items-start justify-between gap-2 mb-1 pr-8">
           <div className="min-w-0">
             <div
               className="inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider mb-1"

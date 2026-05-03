@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Search, Users, Star, Sparkles, X } from "lucide-react";
+import { Search, Users, Star, Sparkles, X, CalendarDays, Bell, Settings } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,60 @@ import { ScheduleGrid } from "@/components/ScheduleGrid";
 import { DAYS, type Day } from "@/data/schedule";
 import { cn, initials } from "@/lib/utils";
 
+type View = "lineup" | "friends" | "config";
+
+const NAV_ITEMS: { id: View; label: string; icon: React.ComponentType<{ className?: string }>; soon?: boolean }[] = [
+  { id: "lineup", label: "Lineup", icon: CalendarDays },
+  { id: "friends", label: "Friend updates", icon: Bell, soon: true },
+  { id: "config", label: "Configuration", icon: Settings, soon: true },
+];
+
+function ComingSoon({ title }: { title: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center text-center py-20 px-6">
+      <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary via-pink-500 to-orange-400 flex items-center justify-center shadow-lg shadow-primary/30 mb-4">
+        <Sparkles className="h-7 w-7 text-white" />
+      </div>
+      <h2 className="text-xl font-extrabold gradient-text">{title}</h2>
+      <p className="text-sm text-muted-foreground mt-2 max-w-sm">
+        Coming soon.
+      </p>
+    </div>
+  );
+}
+
+function SideNav({ view, setView }: { view: View; setView: (v: View) => void }) {
+  return (
+    <nav className="flex flex-col gap-1">
+      {NAV_ITEMS.map((item) => {
+        const Icon = item.icon;
+        const active = view === item.id;
+        return (
+          <button
+            key={item.id}
+            onClick={() => setView(item.id)}
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-left",
+              active ? "bg-card text-foreground" : "text-muted-foreground hover:bg-card/60 hover:text-foreground",
+            )}
+            aria-current={active ? "page" : undefined}
+          >
+            <Icon className="h-4 w-4 shrink-0" />
+            <span className="truncate flex-1">{item.label}</span>
+            {item.soon && (
+              <span className="text-[10px] uppercase tracking-wider rounded-full bg-card border border-border px-1.5 py-0.5 text-muted-foreground">
+                Soon
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
 function AppShell() {
+  const [view, setView] = React.useState<View>("lineup");
   const [day, setDay] = React.useState<Day>("FRIDAY");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [filter, setFilter] = React.useState<"all" | "mine" | string>("all");
@@ -42,9 +95,18 @@ function AppShell() {
 
   return (
     <div className="min-h-dvh">
-      <AppHeader />
+      <AppHeader nav={<SideNav view={view} setView={setView} />} />
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-4">
+      <div className="max-w-7xl mx-auto md:grid md:grid-cols-[200px_1fr] md:gap-6 md:px-6">
+        <aside className="hidden md:block py-6 sticky top-[73px] self-start">
+          <SideNav view={view} setView={setView} />
+        </aside>
+
+        <main className="p-4 sm:p-6 md:px-0 space-y-4">
+          {view !== "lineup" ? (
+            <ComingSoon title={view === "friends" ? "Friend updates" : "Configuration"} />
+          ) : (
+            <>
         <Tabs value={day} onValueChange={(v) => setDay(v as Day)}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <TabsList>
@@ -169,7 +231,10 @@ function AppShell() {
         <p className="text-xs text-muted-foreground text-center pt-2">
           Tap any block to add it to your schedule and see who else is going.
         </p>
-      </main>
+        </>
+          )}
+        </main>
+      </div>
     </div>
   );
 }

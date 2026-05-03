@@ -4,24 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { initials, cn } from "@/lib/utils";
+import { initials } from "@/lib/utils";
 import { toast } from "sonner";
-
-const PALETTE = [
-  "#ff2d75",
-  "#ffd84a",
-  "#7c4dff",
-  "#00bcd4",
-  "#4caf50",
-  "#ff9800",
-  "#e91e63",
-  "#2196f3",
-];
+import { ColorPicker, COLOR_PRESETS } from "@/components/ColorPicker";
 
 export function Onboarding() {
   const { saveProfile, signOut, user } = useAuth();
   const [name, setName] = React.useState("");
-  const [color, setColor] = React.useState(PALETTE[0]);
+  const [color, setColor] = React.useState(COLOR_PRESETS[0]);
   const [submitting, setSubmitting] = React.useState(false);
 
   async function onSubmit(e: React.FormEvent) {
@@ -32,7 +22,9 @@ export function Onboarding() {
       await saveProfile({ display_name: name.trim().slice(0, 40), color });
       toast.success("Welcome aboard");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not save profile");
+      toast.error(
+        err instanceof Error ? err.message : "Could not save profile",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -42,25 +34,25 @@ export function Onboarding() {
     <div className="min-h-dvh flex items-center justify-center p-6">
       <div className="w-full max-w-md glass border border-border rounded-3xl p-8 shadow-2xl shadow-black/40">
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-2">
-          One last thing
+          Una cosita mas
         </p>
         <h1 className="text-3xl font-extrabold gradient-text leading-tight mb-2">
-          Pick your name & color
+          Ponete un nombre y un color
         </h1>
         <p className="text-sm text-muted-foreground mb-8">
-          This is how friends will see you on the schedule. Signed in as{" "}
+          Asi tus amigos te ven en el cronograma. Estas logueado como{" "}
           <span className="text-foreground">{user?.email}</span>.
         </p>
 
         <form onSubmit={onSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="display_name">Display name</Label>
+            <Label htmlFor="display_name">Nombre</Label>
             <Input
               id="display_name"
               required
               autoFocus
               maxLength={40}
-              placeholder="e.g. Nico"
+              placeholder="e.g. Pepe Navajas"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -68,23 +60,7 @@ export function Onboarding() {
 
           <div className="space-y-2">
             <Label>Color</Label>
-            <div className="flex flex-wrap gap-2">
-              {PALETTE.map((c) => (
-                <button
-                  type="button"
-                  key={c}
-                  onClick={() => setColor(c)}
-                  className={cn(
-                    "h-9 w-9 rounded-full border-2 transition-transform",
-                    color === c
-                      ? "border-foreground scale-110 shadow-lg"
-                      : "border-transparent hover:scale-105",
-                  )}
-                  style={{ background: c }}
-                  aria-label={`Choose ${c}`}
-                />
-              ))}
-            </div>
+            <ColorPicker value={color} onChange={setColor} />
           </div>
 
           <div className="rounded-2xl border border-border bg-card/40 p-4 flex items-center gap-3">
@@ -96,9 +72,9 @@ export function Onboarding() {
             </div>
             <div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                Preview
+                Vista previa
               </div>
-              <div className="font-semibold">{name || "Your name"}</div>
+              <div className="font-semibold">{name || "Tu nombre"}</div>
             </div>
           </div>
 
@@ -119,10 +95,10 @@ export function Onboarding() {
             >
               {submitting ? (
                 <>
-                  <Loader2 className="animate-spin" /> Saving…
+                  <Loader2 className="animate-spin" /> Guardando...
                 </>
               ) : (
-                "Continue"
+                "Continuar"
               )}
             </Button>
           </div>

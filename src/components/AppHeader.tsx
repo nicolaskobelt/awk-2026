@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LogOut, Sparkles, Users, Star } from "lucide-react";
+import { LogOut, Sparkles, Users, Star, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -10,10 +10,24 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { usePicks } from "@/hooks/usePicks";
 import { initials } from "@/lib/utils";
+import { ColorPicker } from "@/components/ColorPicker";
+import { toast } from "sonner";
 
-export function AppHeader() {
-  const { profile, signOut } = useAuth();
+export function AppHeader({ nav }: { nav?: React.ReactNode }) {
+  const { profile, signOut, saveProfile } = useAuth();
   const { profilesById, picks, myPickIds } = usePicks();
+
+  const onColorChange = React.useCallback(
+    async (color: string) => {
+      if (!profile) return;
+      try {
+        await saveProfile({ display_name: profile.display_name, color });
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Could not update color");
+      }
+    },
+    [profile, saveProfile],
+  );
 
   const friends = React.useMemo(
     () =>
@@ -29,6 +43,21 @@ export function AppHeader() {
     <header className="sticky top-0 z-30 px-4 sm:px-6 py-4 glass border-b border-border">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
+          {nav && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="md:hidden flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card/40 hover:bg-card/70 transition-colors"
+                  aria-label="Open menu"
+                >
+                  <Menu className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-56">
+                {nav}
+              </PopoverContent>
+            </Popover>
+          )}
           <div className="hidden sm:flex h-10 w-10 rounded-full bg-gradient-to-br from-primary via-pink-500 to-orange-400 items-center justify-center shadow-lg shadow-primary/30">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
@@ -85,6 +114,18 @@ export function AppHeader() {
                     {myPickIds.size} picks
                   </div>
                 </div>
+              </div>
+              <div className="border-t border-border pt-3 mb-3">
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
+                  Your color
+                </div>
+                {profile && (
+                  <ColorPicker
+                    value={profile.color}
+                    onChange={onColorChange}
+                    swatchSize="sm"
+                  />
+                )}
               </div>
               <div className="border-t border-border pt-3 mb-3">
                 <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">
